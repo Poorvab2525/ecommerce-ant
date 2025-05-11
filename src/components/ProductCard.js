@@ -1,15 +1,20 @@
-import React from 'react';
-import { Card } from 'antd';
-import { Link } from 'react-router-dom';
+import { Card, Button } from 'antd';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../redux/cartSlice'; // adjust path
 
 const ProductCard = ({ product }) => {
+  const dispatch = useDispatch();
+
   return (
-    <Link to={`/product/${product.id}`}>
-      <Card title={product.title} cover={<img alt="product" src={product.image} height="200" />}>
-        <p>{product.description.slice(0, 60)}...</p>
-        <p><strong>${product.price}</strong></p>
-      </Card>
-    </Link>
+    <Card
+      hoverable
+      cover={<img alt={product.title} src={product.image} style={{ height: 200, objectFit: 'contain' }} />}
+    >
+      <Card.Meta title={product.title} description={`$${product.price}`} />
+      <Button type="primary" onClick={() => dispatch(addToCart(product))} style={{ marginTop: 10 }}>
+        Add to Cart
+      </Button>
+    </Card>
   );
 };
 
