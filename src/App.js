@@ -3,11 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import LoginPage from './pages/LoginPage';
-import { Badge, Button } from 'antd';
-import { ShoppingCartOutlined } from '@ant-design/icons';
-import CartDrawer from './components/CartDrawer'; // Adjust path if needed
-import { useSelector } from 'react-redux';
-import { useState } from 'react';
+import Navbar from './components/Navbar';
 
 function App() {
   const isLoggedIn = localStorage.getItem('user');
@@ -26,25 +22,5 @@ function App() {
     </Router>
   );
 }
-
-const Navbar = () => {
-  const cart = useSelector((state) => state.cart);
-  const [open, setOpen] = useState(false);
-
-  console.log("Navbar rendered, cart: ", cart);  // Debugging statement
-
-  return (
-    <>
-      <Button type="primary" onClick={() => setOpen(true)} icon={
-        <Badge count={cart.length} offset={[0, 0]}>
-          <ShoppingCartOutlined />
-        </Badge>
-      }>
-        Cart
-      </Button>
-      <CartDrawer open={open} onClose={() => setOpen(false)} />
-    </>
-  );
-};
 
 export default App;
