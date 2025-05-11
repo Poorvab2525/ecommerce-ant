@@ -1,24 +1,33 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import LoginPage from './pages/LoginPage';
 import Navbar from './components/Navbar';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
   const isLoggedIn = localStorage.getItem('user');
 
-  console.log("App rendered, logged in status: ", isLoggedIn);  // Debugging statement
+  // Determine whether to show the Navbar
+  const showNavbar = isLoggedIn && location.pathname !== '/login';
 
   return (
-    <Router>
-      <Navbar /> {/* Add Navbar here */}
+    <>
+      {showNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={isLoggedIn ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/login" element={<LoginPage />} />
-</Routes>
+      </Routes>
+    </>
+  );
+}
 
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
