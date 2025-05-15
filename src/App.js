@@ -10,7 +10,6 @@ import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import LoginPage from './pages/LoginPage';
 import Navbar from './components/Navbar';
-import About from './pages/About';
 import Footer from './components/Footer';
 
 import './App.css';
@@ -31,7 +30,6 @@ element={isLoggedIn ? <HomePage /> : <Navigate to="/login" />}
 />
 <Route path="/product/:id" element={<ProductPage />} />
 <Route path="/login" element={<LoginPage />} />
-<Route path="/about" element={<About />} />
 </Routes>
 </div>
 );
