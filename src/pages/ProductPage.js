@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { Card, Typography, Button, Spin } from 'antd';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { addToCart } from '../redux/cartSlice';  // Adjust the path if needed
+import { addToCart } from '../redux/cartSlice';  
+
 
 const { Title, Paragraph } = Typography;
 

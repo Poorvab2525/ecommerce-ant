@@ -2,6 +2,7 @@ import { Card, Button } from 'antd';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../redux/cartSlice'; // adjust path
 
+
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
 
