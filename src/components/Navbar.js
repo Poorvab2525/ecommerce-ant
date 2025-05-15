@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import React, { useState } from 'react';
 import { Layout, Menu, Button, Badge, Drawer } from 'antd';
 import { ShoppingCartOutlined, MenuOutlined } from '@ant-design/icons';
@@ -9,16 +8,23 @@ import CartDrawer from './CartDrawer';
 const { Header } = Layout;
 
 const Navbar = () => {
+  // Access cart state from Redux to show cart item count
   const cart = useSelector((state) => state.cart);
+
+  // State for toggling cart drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // State for toggling mobile menu drawer
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Navigation menu items
   const navItems = [
     { label: <NavLink to="/">Home</NavLink>, key: 'home' },
   ];
 
   return (
     <>
+      {/* Sticky Header using Ant Design Layout.Header */}
       <Header
         className="navbar-header"
         style={{
@@ -32,20 +38,26 @@ const Navbar = () => {
           paddingInline: 20,
         }}
       >
+        {/* Brand / Logo */}
         <div className="logo" style={{ fontWeight: 'bold', fontSize: 20 }}>
           <NavLink to="/" style={{ color: '#1890ff' }}>
             E-commerce
           </NavLink>
         </div>
 
+        {/* Desktop navigation menu */}
         <div className="desktop-menu" style={{ flex: 1, marginLeft: 50 }}>
           <Menu items={navItems} />
         </div>
 
+        {/* Action buttons: Logout, Cart, and Mobile Menu */}
         <div className="navbar-actions" style={{ display: 'flex', gap: 10 }}>
+          {/* Logout button navigates to login page */}
           <NavLink to="/login">
             <Button type="text">Logout</Button>
           </NavLink>
+
+          {/* Cart button with badge showing cart count */}
           <Button
             type="primary"
             icon={
@@ -57,6 +69,8 @@ const Navbar = () => {
           >
             Cart
           </Button>
+
+          {/* Hamburger menu icon for mobile view */}
           <Button
             className="menu-toggle"
             type="text"
@@ -66,11 +80,17 @@ const Navbar = () => {
         </div>
       </Header>
 
-      {/* Drawer for Cart */}
+      {/* Drawer for viewing cart items */}
       <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
-      {/* Drawer for small-screen menu */}
-      <Drawer title="Menu" placement="right" closable onClose={() => setMenuOpen(false)} open={menuOpen}>
+      {/* Drawer for mobile navigation menu */}
+      <Drawer
+        title="Menu"
+        placement="right"
+        closable
+        onClose={() => setMenuOpen(false)}
+        open={menuOpen}
+      >
         <Menu
           items={[
             ...navItems,

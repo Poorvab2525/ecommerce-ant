@@ -5,26 +5,45 @@ import { loginUser } from '../redux/userSlice';
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { error, user, loading } = useSelector(state => state.user); // Fixed user info
 
+  // Extracting authentication state from Redux
+  const { error, user, loading } = useSelector(state => state.user);
+
+  // Called when form is successfully submitted
   const onFinish = (values) => {
-    // Passing both email and password for login
+    // Dispatch loginUser thunk with email and password
     dispatch(loginUser({ email: values.email, password: values.password }));
   };
 
   return (
+    // Ant Design vertical form layout
     <Form onFinish={onFinish} layout="vertical">
+
+      {/* Show success alert if user is logged in */}
       {user && <Alert message={`Welcome, ${user.name}!`} type="success" showIcon />}
+
+      {/* Show error alert if login failed */}
       {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 10 }} />}
       
-      <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please enter your email' }]}>
+      {/* Email input field with validation */}
+      <Form.Item 
+        name="email" 
+        label="Email" 
+        rules={[{ required: true, message: 'Please enter your email' }]}
+      >
         <Input />
       </Form.Item>
 
-      <Form.Item name="password" label="Password" rules={[{ required: true, message: 'Please enter your password' }]}>
+      {/* Password input field with validation */}
+      <Form.Item 
+        name="password" 
+        label="Password" 
+        rules={[{ required: true, message: 'Please enter your password' }]}
+      >
         <Input.Password />
       </Form.Item>
 
+      {/* Submit button with loading state */}
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={loading} block>
           Login

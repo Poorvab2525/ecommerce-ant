@@ -5,24 +5,26 @@ import { useNavigate } from 'react-router-dom';
 const { Title } = Typography;
 
 const LoginPage = () => {
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [error, setError] = useState(null); // State to store error message
+  const navigate = useNavigate(); // Hook to navigate programmatically
 
-  // Hardcoded login credentials for simplicity
+  // Hardcoded credentials for demonstration purposes
   const validEmail = 'admin@gmail.com';
-  const validPassword = 'admin';  // You can replace with any password
+  const validPassword = 'admin';  // Change as needed for testing
 
+  // Handler for form submission
   const onFinish = (values) => {
-    setError(null);
-    
-    // Check if email and password match the hardcoded ones
+    setError(null); // Clear previous errors
+
+    // Validate credentials
     if (values.email === validEmail && values.password === validPassword) {
-      // Simulate a successful login by storing user info in localStorage
+      // Save user info to localStorage to simulate authentication
       localStorage.setItem('user', JSON.stringify({ email: values.email }));
-      
-      // Redirect to the home page after successful login
+
+      // Redirect to home page after successful login
       navigate('/');
     } else {
+      // Set error message if credentials are invalid
       setError('Invalid email or password.');
     }
   };
@@ -30,9 +32,15 @@ const LoginPage = () => {
   return (
     <div style={{ maxWidth: 400, margin: '80px auto' }}>
       <Card>
+        {/* Page Title */}
         <Title level={3}>Login</Title>
+
+        {/* Show error alert if login fails */}
         {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
+
+        {/* Ant Design Form component with validation */}
         <Form layout="vertical" onFinish={onFinish}>
+          {/* Email input with validation rules */}
           <Form.Item
             label="Email"
             name="email"
@@ -44,6 +52,7 @@ const LoginPage = () => {
             <Input />
           </Form.Item>
 
+          {/* Password input with validation */}
           <Form.Item
             label="Password"
             name="password"
@@ -54,6 +63,7 @@ const LoginPage = () => {
             <Input.Password />
           </Form.Item>
 
+          {/* Submit button */}
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
               Log In
