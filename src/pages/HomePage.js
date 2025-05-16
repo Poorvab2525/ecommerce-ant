@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Select, Spin } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-// import Footer from '../components/Footer'; // Optional: include if using a custom footer
-
+import Footer from '../components/Footer'; 
 const { Option } = Select;
 
 const HomePage = () => {
@@ -98,7 +97,7 @@ const HomePage = () => {
       </div>
 
       {/* Optional footer section */}
-      {/* <Footer /> */}
+      {<Footer /> }
     </>
   );
 };
