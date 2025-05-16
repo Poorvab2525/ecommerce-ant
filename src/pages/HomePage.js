@@ -1,59 +1,71 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Select, Spin } from 'antd';
+import { Row, Col, Card, Select, Spin, Slider, Typography } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../components/Footer'; 
+import Footer from '../components/Footer';
+
 const { Option } = Select;
+const { Title } = Typography;
 
 const HomePage = () => {
-  // State to hold all products fetched from API
-  const [products, setProducts] = useState([]);
+  // State variables
+  const [products, setProducts] = useState([]); // All fetched products
+  const [filtered, setFiltered] = useState([]); // Products after applying filters
+  const [categories, setCategories] = useState([]); // Available categories from API
+  const [loading, setLoading] = useState(true); // Loading state for spinner
 
-  // State to hold currently filtered products
-  const [filtered, setFiltered] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all'); // Currently selected category filter
+  const [priceRange, setPriceRange] = useState([0, 1000]); // Currently selected price range
 
-  // State to hold product categories for filtering
-  const [categories, setCategories] = useState([]);
+  const navigate = useNavigate(); // React Router navigation hook
 
-  // State to track loading spinner visibility
-  const [loading, setLoading] = useState(true);
-
-  const navigate = useNavigate(); // Hook to programmatically navigate between routes
-
-  // Fetch data when component mounts
+  // Fetch data on initial render
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Fetch products and categories from fakestoreapi
+  // Fetch products and categories from the API
   const fetchData = async () => {
     const productRes = await axios.get('https://fakestoreapi.com/products');
     const categoryRes = await axios.get('https://fakestoreapi.com/products/categories');
 
-    // Set products and categories
     setProducts(productRes.data);
-    setFiltered(productRes.data); // Initially show all products
+    setFiltered(productRes.data);
     setCategories(categoryRes.data);
     setLoading(false);
   };
 
-  // Handle category filter selection
+  // Handle category change from dropdown
   const handleCategoryChange = (value) => {
-    if (value === 'all') {
-      setFiltered(products); // Show all products
-    } else {
-      // Filter products by selected category
-      setFiltered(products.filter(p => p.category === value));
+    setSelectedCategory(value);
+    applyFilters(value, priceRange);
+  };
+
+  // Apply both category and price range filters to product list
+  const applyFilters = (category, range) => {
+    let filteredList = [...products];
+
+    // Filter by category if not "all"
+    if (category !== 'all') {
+      filteredList = filteredList.filter(p => p.category === category);
     }
+
+    // Filter by price range
+    filteredList = filteredList.filter(p =>
+      p.price >= range[0] && p.price <= range[1]
+    );
+
+    setFiltered(filteredList); // Update the filtered product list
   };
 
   return (
     <>
       <div style={{ padding: '20px' }}>
-        {/* Dropdown for category filter */}
+        {/* Category Filter Dropdown */}
         <Select
           defaultValue="all"
-          style={{ width: 200, marginBottom: '20px' }}
+          value={selectedCategory}
+          style={{ width: 200, marginBottom: '20px', marginRight: '20px' }}
           onChange={handleCategoryChange}
         >
           <Option value="all">All</Option>
@@ -62,19 +74,36 @@ const HomePage = () => {
           ))}
         </Select>
 
-        {/* Show loading spinner while fetching data */}
+        {/* Price Range Slider */}
+        <div style={{ marginBottom: '20px' }}>
+          <Title level={5}>
+            Filter by Price (₹{priceRange[0]} – ₹{priceRange[1]})
+          </Title>
+          <Slider
+            range
+            min={0}
+            max={1000}
+            value={priceRange}
+            onChange={(range) => {
+              setPriceRange(range); // Update slider state
+              applyFilters(selectedCategory, range); // Reapply filters
+            }}
+            style={{ width: 300 }}
+          />
+        </div>
+
+        {/* Loading Spinner */}
         {loading ? (
           <div style={{ textAlign: 'center', marginTop: '50px' }}>
             <Spin size="large" />
           </div>
         ) : (
-          // Responsive grid of product cards
+          // Product Grid Layout
           <Row gutter={[16, 16]}>
             {filtered.map(product => (
               <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
                   hoverable
-                  // Product image with consistent size and containment
                   cover={
                     <img
                       alt={product.title}
@@ -82,12 +111,12 @@ const HomePage = () => {
                       style={{ height: '250px', objectFit: 'contain' }}
                     />
                   }
-                  // Navigate to product detail page on card click
+                  // Navigate to product detail page on click
                   onClick={() => navigate(`/product/${product.id}`)}
                 >
                   <Card.Meta
                     title={product.title}
-                    description={`₹${product.price}`} // Display price
+                    description={`₹${product.price}`}
                   />
                 </Card>
               </Col>
@@ -96,8 +125,8 @@ const HomePage = () => {
         )}
       </div>
 
-      {/* Optional footer section */}
-      {<Footer /> }
+      {/* Footer Component */}
+      <Footer />
     </>
   );
 };
