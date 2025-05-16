@@ -1,62 +1,79 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-// Async thunk to simulate user login
+// Async thunk for user login using fake store API
+// Accepts username and password, sends POST request to API,
+// and handles success or failure
 export const loginUser = createAsyncThunk(
   'user/loginUser',
-  async ({ email }, { rejectWithValue }) => {
+  async ({ username, password }, { rejectWithValue }) => {
     try {
-      // Simulate API call delay here if needed
-      // For now, just create a user object and save to localStorage
-      const user = { email };
+      // Make POST request to fakestoreapi for authentication
+      const response = await axios.post('https://fakestoreapi.com/auth/login', {
+        username,
+        password,
+      });
+
+      // Extract token from response
+      const token = response.data.token;
+      // Construct user object with username and token
+      const user = { username, token };
+
+      // Persist user info in localStorage for session persistence
       localStorage.setItem('user', JSON.stringify(user));
-      return user;  // Return the user payload on success
+
+      // Return user data to be handled in fulfilled reducer
+      return user;
     } catch (error) {
-      // Return a rejected action with error message on failure
-      return rejectWithValue('Login failed. Please try again.');
+      // If error occurs, reject with a custom error message
+      return rejectWithValue('Login failed. Please check your credentials.');
     }
   }
 );
 
+// Create a slice of the Redux store to manage user authentication state
 const userSlice = createSlice({
-  name: 'user',
+  name: 'user',  // Slice name used as prefix for action types
   initialState: {
-    isAuthenticated: false,  // Track login status
-    user: null,              // Store user info (e.g., email)
-    loading: false,          // Loading flag for async login action
-    error: null,             // Store any error messages
+    isAuthenticated: false,  // Whether user is logged in
+    user: null,              // User data (username, token)
+    loading: false,          // Loading state for async actions
+    error: null,             // Error message string if login fails
   },
   reducers: {
-    // Synchronous logout action clears user data and auth state
+    // Synchronous action to log out user and clear state/localStorage
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
       state.error = null;
+      localStorage.removeItem('user');  // Remove user data from localStorage
     },
   },
   extraReducers: (builder) => {
     builder
-      // While login is pending, set loading true and clear previous errors
+      // Pending state when login request is in progress
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
-        state.error = null;
+        state.error = null;  // Clear previous errors
       })
-      // On successful login, set user data and auth flag, turn off loading
+      // Fulfilled state when login succeeds
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = action.payload;  // Set user data from payload
       })
-      // On login failure, clear user data, set error message, and stop loading
+      // Rejected state when login fails
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.user = null;
-        state.error = action.payload;
+        state.error = action.payload;  // Set error message from rejected value
       });
   },
 });
 
-// Export the logout action for use elsewhere
+// Export logout action creator for use in components
 export const { logout } = userSlice.actions;
-// Export the reducer to be added to the store
+
+// Export reducer to be included in the Redux store
 export default userSlice.reducer;

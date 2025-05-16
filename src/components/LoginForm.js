@@ -4,37 +4,50 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../redux/userSlice';
 
 const LoginForm = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch();  // Hook to dispatch Redux actions
 
-  // Extracting authentication state from Redux
-  const { error, user, loading } = useSelector(state => state.user);
+  // Select user-related state from the Redux store
+  const { error, user, loading, isAuthenticated } = useSelector(state => state.user);
 
-  // Called when form is successfully submitted
+  // Called when form is submitted successfully
   const onFinish = (values) => {
-    // Dispatch loginUser thunk with email and password
-    dispatch(loginUser({ email: values.email, password: values.password }));
+    // Dispatch the loginUser async thunk with form values
+    dispatch(loginUser(values));
   };
 
   return (
-    // Ant Design vertical form layout
     <Form onFinish={onFinish} layout="vertical">
-
-      {/* Show success alert if user is logged in */}
-      {user && <Alert message={`Welcome, ${user.name}!`} type="success" showIcon />}
+      
+      {/* Show success alert if the user is authenticated */}
+      {isAuthenticated && (
+        <Alert
+          message={`Welcome, ${user.username}!`}
+          type="success"
+          showIcon
+          style={{ marginBottom: 10 }}
+        />
+      )}
 
       {/* Show error alert if login failed */}
-      {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 10 }} />}
-      
-      {/* Email input field with validation */}
+      {error && (
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+          style={{ marginBottom: 10 }}
+        />
+      )}
+
+      {/* Username input field with required validation */}
       <Form.Item 
-        name="email" 
-        label="Email" 
-        rules={[{ required: true, message: 'Please enter your email' }]}
+        name="username" 
+        label="Username" 
+        rules={[{ required: true, message: 'Please enter your username' }]}
       >
         <Input />
       </Form.Item>
 
-      {/* Password input field with validation */}
+      {/* Password input field with required validation */}
       <Form.Item 
         name="password" 
         label="Password" 
@@ -43,7 +56,7 @@ const LoginForm = () => {
         <Input.Password />
       </Form.Item>
 
-      {/* Submit button with loading state */}
+      {/* Submit button with loading spinner during login */}
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={loading} block>
           Login

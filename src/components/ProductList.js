@@ -1,95 +1,133 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Row, Col, Select, Skeleton, message } from 'antd';
+import { Row, Col, Select, Skeleton, message, Input, Pagination } from 'antd';
 import ProductCard from './ProductCard';
 
 const { Option } = Select;
+const { Search } = Input;
 
 const ProductList = () => {
-  // State to hold all products
   const [products, setProducts] = useState([]);
-
-  // State for filtered product list (based on category)
   const [filtered, setFiltered] = useState([]);
-
-  // Loading state for API request
   const [loading, setLoading] = useState(true);
-
-  // State to store unique product categories
   const [categories, setCategories] = useState([]);
 
-  // Fetch product data from API on component mount
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
+
+  const [searchText, setSearchText] = useState('');
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetching products from fakestoreapi
         const res = await axios.get('https://fakestoreapi.com/products');
-
-        // Store full list and set initial filtered list
         setProducts(res.data);
         setFiltered(res.data);
-
-        // Extract unique categories from product list
         const uniqueCats = [...new Set(res.data.map(p => p.category))];
         setCategories(uniqueCats);
       } catch (err) {
-        message.error('Failed to load products'); // Show error toast
+        message.error('Failed to load products');
       } finally {
-        setLoading(false); // Turn off loading spinner
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
 
-  // Handle category filter change
-  const handleFilter = (value) => {
-    if (value === 'all') {
-      setFiltered(products); // Show all products
-    } else {
-      // Filter products by selected category
-      setFiltered(products.filter(p => p.category === value));
+  const applyFilters = (category, search) => {
+    let filteredData = products;
+
+    if (category && category !== 'all') {
+      filteredData = filteredData.filter(p => p.category === category);
     }
+
+    if (search && search.trim() !== '') {
+      filteredData = filteredData.filter(p =>
+        p.title.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    setFiltered(filteredData);
+    setCurrentPage(1);
   };
+
+  const handleFilter = (value) => {
+    applyFilters(value, searchText);
+  };
+
+  const onSearch = (value) => {
+    setSearchText(value);
+    applyFilters(undefined, value);
+  };
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentProducts = filtered.slice(startIndex, startIndex + pageSize);
 
   return (
     <>
-      {/* Section Title */}
       <h2 style={{ textAlign: 'center', marginBottom: 20 }}>Latest Products</h2>
 
-      {/* Category Filter Dropdown */}
-      <div style={{ marginBottom: 24, textAlign: 'center' }}>
-        <Select
-          defaultValue="all"
-          onChange={handleFilter}
-          style={{ width: 200 }}
-        >
-          <Option value="all">All</Option>
-          {categories.map((cat) => (
-            <Option key={cat} value={cat}>
-              {cat.toUpperCase()}
-            </Option>
-          ))}
-        </Select>
-      </div>
+      <Row justify="center" gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={12} md={8}>
+          <Search
+            placeholder="Search products"
+            allowClear
+            enterButton="Search"
+            size="middle"
+            onSearch={onSearch}
+            value={searchText}
+            onChange={e => {
+              setSearchText(e.target.value);
+              if (e.target.value === '') {
+                applyFilters(undefined, '');
+              }
+            }}
+          />
+        </Col>
+        <Col xs={24} sm={8} md={6}>
+          <Select
+            defaultValue="all"
+            onChange={handleFilter}
+            style={{ width: '100%' }}
+          >
+            <Option value="all">All Categories</Option>
+            {categories.map(cat => (
+              <Option key={cat} value={cat}>
+                {cat.toUpperCase()}
+              </Option>
+            ))}
+          </Select>
+        </Col>
+      </Row>
 
-      {/* Responsive product grid */}
       <Row gutter={[16, 16]} justify="center">
-        {/* Show skeletons while loading */}
         {loading ? (
-          Array.from({ length: 8 }).map((_, i) => (
+          Array.from({ length: pageSize }).map((_, i) => (
             <Col xs={24} sm={12} md={8} lg={6} key={i}>
               <Skeleton active />
             </Col>
           ))
-        ) : (
-          // Render filtered product cards
-          filtered.map(product => (
+        ) : currentProducts.length > 0 ? (
+          currentProducts.map(product => (
             <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
               <ProductCard product={product} />
             </Col>
           ))
+        ) : (
+          <p style={{ textAlign: 'center', width: '100%' }}>No products found.</p>
         )}
       </Row>
+
+      {!loading && filtered.length > pageSize && (
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={filtered.length}
+          onChange={page => setCurrentPage(page)}
+          style={{ marginTop: 24, textAlign: 'center' }}
+          showSizeChanger={false}
+        />
+      )}
     </>
   );
 };

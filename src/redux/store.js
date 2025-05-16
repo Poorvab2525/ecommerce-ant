@@ -1,8 +1,7 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import cartReducer from './cartSlice';    // Cart slice reducer
-import userReducer from './userSlice';    // User slice reducer
+import cartReducer from './cartSlice';
+import userReducer from './userSlice';
 
-// Imports from redux-persist to enable state persistence
 import {
   persistStore,
   persistReducer,
@@ -14,35 +13,35 @@ import {
   REGISTER,
 } from 'redux-persist';
 
-import storage from 'redux-persist/lib/storage'; // Uses localStorage as default storage
+import storage from 'redux-persist/lib/storage'; // Defaults to localStorage for web
 
 // Configuration object for redux-persist
 const persistConfig = {
-  key: 'root',             // Key for the persisted state in storage
-  storage,                 // Storage engine (localStorage here)
-  whitelist: ['cart', 'user'], // Only persist 'cart' and 'user' slices
+  key: 'root',           // Key for the persisted data in storage
+  storage,               // Use localStorage to save persisted state
+  whitelist: ['cart', 'user'],  // Only persist these slices of state
 };
 
-// Combine multiple slice reducers into a root reducer
+// Combine multiple slice reducers into one root reducer
 const rootReducer = combineReducers({
   cart: cartReducer,
   user: userReducer,
 });
 
-// Create a persisted reducer using redux-persist
+// Wrap root reducer with persistReducer to enable persistence
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// Create the Redux store with persisted reducer and middleware configuration
+// Create the Redux store with the persisted reducer
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: persistedReducer,  // Use persisted reducer instead of rootReducer
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      // Ignore redux-persist actions for serializable state middleware check
+      // Disable serializable check warnings for redux-persist actions
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),
 });
 
-// Create persistor linked to the store, used to control persistence flow
+// Create a persistor linked to the store to control persistence lifecycle
 export const persistor = persistStore(store);
