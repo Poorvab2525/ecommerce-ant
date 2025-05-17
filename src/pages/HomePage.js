@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Select, Spin, Slider, Typography } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../components/Footer';
+// import Footer from '../components/Footer';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -126,7 +126,7 @@ const HomePage = () => {
       </div>
 
       {/* Footer Component */}
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };
